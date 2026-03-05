@@ -18,7 +18,7 @@ public class AdminCheckInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException{
-        UserRole role = UserRole.of((String) request.getAttribute("userRole"));
+        UserRole role = (UserRole) request.getAttribute("userRole"); // 수정
 
         if(role != UserRole.ADMIN) {
             log.warn("(interceptor)관리자 권한 없음: role={}, URI={}", role, request.getRequestURI());
