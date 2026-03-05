@@ -70,4 +70,61 @@ class CommentServiceTest {
         // then
         assertNotNull(result);
     }
+
+    // 추가
+    @Test
+    public void comment_목록을_정상적으로_조회한다() {
+        // given
+        long todoId = 1;
+        AuthUser authUser = new AuthUser(1L, "email", UserRole.USER);
+        User user = User.fromAuthUser(authUser);
+        Todo todo = new Todo("title", "title", "contents", user);
+        Comment comment = new Comment("c1", user, todo);
+
+        given(commentRepository.findByTodoIdWithUser(anyLong()))
+                .willReturn(java.util.List.of(comment));
+
+        // when
+        java.util.List<org.example.expert.domain.comment.dto.response.CommentResponse> result =
+                commentService.getComments(todoId);
+
+        // then
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("c1", result.get(0).getContents());
+        assertNotNull(result.get(0).getUser());
+        assertEquals(user.getEmail(), result.get(0).getUser().getEmail());
+    }
+
+    @Test
+    public void comment_목록이_없으면_빈리스트를_반환한다() {
+        // given
+        long todoId = 1;
+
+        given(commentRepository.findByTodoIdWithUser(anyLong()))
+                .willReturn(java.util.List.of());
+
+        // when
+        java.util.List<org.example.expert.domain.comment.dto.response.CommentResponse> result =
+                commentService.getComments(todoId);
+
+        // then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void comment_내용을_수정한다() {
+        // given
+        AuthUser authUser = new AuthUser(1L, "email", UserRole.USER);
+        User user = User.fromAuthUser(authUser);
+        Todo todo = new Todo("title", "title", "contents", user);
+        Comment comment = new Comment("old", user, todo);
+
+        // when
+        comment.update("new");
+
+        // then
+        assertEquals("new", comment.getContents());
+    }
 }
